@@ -19,8 +19,8 @@ jobs:
       packages: write
 
     steps:
-      # - name: Checkout Push to Registry action
-        # uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Get date for image tag
         id: date
