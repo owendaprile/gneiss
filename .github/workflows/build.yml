@@ -26,30 +26,17 @@ jobs:
         id: date
         run: echo "DATE=$(date +'%y%m%d')" >> $GITHUB_ENV
 
-      # - name: Build image
-      #   id: build_image
-      #   uses: redhat-actions/buildah-build@v2
-      #   with:
-      #     containerfiles: |
-      #       ./Containerfile
-      #     image: gneiss
-      #     tags: 39 39.${{ env.DATE }}
-      #     build-args: |
-      #       FEDORA_MAJOR_VERSION=39
-      #       NVIDIA_MAJOR_VERSION=535
-      #     oci: false
-
       - name: Build image
         id: build_image
         uses: redhat-actions/buildah-build@v2
         with:
+          containerfiles: |
+            ./Containerfile
           image: gneiss
-          tags: 39
-          base-image: busybox:latest
-          entrypoint: |
-            bash
-            -c
-            echo 'hello world'
+          tags: 39 39.${{ env.DATE }}
+          build-args: |
+            FEDORA_MAJOR_VERSION=39
+            NVIDIA_MAJOR_VERSION=535
           oci: false
 
       - name: Push image to registry
@@ -64,5 +51,3 @@ jobs:
           registry: ${{ env.IMAGE_REGISTRY }}
           username: ${{ env.REGISTRY_USER }}
           password: ${{ env.REGISTRY_PASSWORD }}
-          extra-args: |
-            --disable-content-trust
