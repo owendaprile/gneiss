@@ -2,8 +2,8 @@
 name: build-image
 on:
   push:
-    branches:
-      - release
+    # branches:
+      # - release
   schedule:
     - cron: "20 22 * * 0"
 env:
