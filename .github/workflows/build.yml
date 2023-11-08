@@ -8,6 +8,8 @@ on:
     - cron: "20 22 * * 0"
   workflow_dispatch:
 env:
+  FEDORA_MAJOR_VERSION: 39
+  NVIDIA_MAJOR_VERSION: 535
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
 
 jobs:
@@ -33,11 +35,11 @@ jobs:
           containerfiles: |
             ./Containerfile
           image: gneiss
-          tags: 39 39.${{ env.DATE }}
+          tags: ${{ env.FEDORA_MAJOR_VERSION }} ${{ env.FEDORA_MAJOR_VERSION }}.${{ env.DATE }}
           build-args: |
-            FEDORA_MAJOR_VERSION=39
-            NVIDIA_MAJOR_VERSION=535
-          oci: false
+            FEDORA_MAJOR_VERSION=${{ env.FEDORA_MAJOR_VERSION }}
+            NVIDIA_MAJOR_VERSION=${{ env.NVIDIA_MAJOR_VERSION }}
+          # oci: false
 
       - name: Push image to registry
         uses: redhat-actions/push-to-registry@v2
