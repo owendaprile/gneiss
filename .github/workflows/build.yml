@@ -1,0 +1,55 @@
+---
+name: build-image
+on:
+  push:
+    branches:
+      - release
+  schedule:
+    - cron: "20 22 * * 0"
+env:
+  IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
+
+jobs:
+  push-ghcr:
+    name: Build and push image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    steps:
+      - name: Maximize build space
+        uses: AdityaGarg8/remove-unwanted-software@v1
+        with:
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+        
+      - name: Checkout Push to Registry action
+        uses: actions/checkout@v4
+
+      - name: Build image
+        id: build_image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          containerfiles: |
+            ./Containerfile
+          image: ghcr.io/owendaprile/gneiss:39
+          build-args: |
+            FEDORA_MAJOR_VERSION=39
+            NVIDIA_MAJOR_VERSION=535
+          oci: false
+
+      - name: Push to registry
+        uses: redhat-actions/push-to-registry@v2
+        id: push_image
+        env:
+          REGISTRY_USER: ${{ github.actor }}
+          REGISTRY_PASSWORD: ${{ github.token }}
+        with:
+          image: ${{ steps.build_image.outputs.image }}
+          registry: ${{ env.IMAGE_REGISTRY }}
+          username: ${{ env.REGISTRY_USER }}
+          password: ${{ env.REGISTRY_PASSWORD }}
+          extra-args: |
+            --disable-content-trust
