@@ -34,7 +34,8 @@ jobs:
         with:
           containerfiles: |
             ./Containerfile
-          image: ghcr.io/owendaprile/gneiss:39
+          image: ghcr.io/owendaprile/gneiss
+          tags: 39
           build-args: |
             FEDORA_MAJOR_VERSION=39
             NVIDIA_MAJOR_VERSION=535
