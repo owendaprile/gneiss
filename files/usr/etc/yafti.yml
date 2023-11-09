@@ -1,0 +1,17 @@
+---
+title: Gneiss First Boot
+
+properties:
+  mode: "run-on-change"
+
+actions:
+  pre:
+    - run: echo hi
+
+screens:
+  first-screen:
+    source: yafti.screen.title
+    values:
+      title: "Welcome"
+      description: |
+        Poggers Champion

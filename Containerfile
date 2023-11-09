@@ -1,10 +1,28 @@
+##
+## Build the Nvidia kmod
+##
+
 ARG FEDORA_MAJOR_VERSION="${FEDORA_MAJOR_VERSION:-39}"
-ARG NVIDIA_MAJOR_VERSION="${NVIDIA_MAJOR_VERSION:-535}"
+
+FROM quay.io/fedora-ostree-desktops/silverblue:${FEDORA_MAJOR_VERSION} AS nvidia-builder
+
+ARG FEDORA_MAJOR_VERSION="${FEDORA_MAJOR_VERSION:-39}"
+
+COPY build/nvidia-kmod.sh .
+
+RUN rpm-ostree install \
+        https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORA_MAJOR_VERSION}.noarch.rpm \
+        https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORA_MAJOR_VERSION}.noarch.rpm && \
+    ./nvidia-kmod.sh
+
+
+##
+## Build the system image
+##
 
 FROM quay.io/fedora-ostree-desktops/silverblue:${FEDORA_MAJOR_VERSION}
 
 ARG FEDORA_MAJOR_VERSION="${FEDORA_MAJOR_VERSION:-39}"
-ARG NVIDIA_MAJOR_VERSION="${NVIDIA_MAJOR_VERSION:-535}"
 
 # Add rpmfusion repositories
 RUN rpm-ostree install \
@@ -13,17 +31,18 @@ RUN rpm-ostree install \
 
 
 #
-# Nvidia drivers
+# Nvidia driver
 #
 
-COPY --from=ghcr.io/ublue-os/akmods-nvidia:main-${FEDORA_MAJOR_VERSION}-${NVIDIA_MAJOR_VERSION} /rpms /tmp/akmods-rpms
+COPY --from=nvidia-builder /rpms /tmp/akmods-rpms
 
-RUN rpm-ostree install /tmp/akmods-rpms/ublue-os/ublue-os-nvidia-addons-*.rpm && \
-    source /tmp/akmods-rpms/kmods/nvidia-vars.${NVIDIA_MAJOR_VERSION} && \
+# Install Nvidia kmod and VA-API driver
+RUN source /tmp/akmods-rpms/nvidia-vars && \
     rpm-ostree install \
-        /tmp/akmods-rpms/kmods/kmod-${NVIDIA_PACKAGE_NAME}-${KERNEL_VERSION}-${NVIDIA_AKMOD_VERSION}.fc${RELEASE}.rpm \
-        nvidia-container-toolkit nvidia-vaapi-driver supergfxctl gnome-shell-extension-supergfxctl-gex && \
-    rm --force /etc/yum.repos.d/{eyecantcu-supergfxctl,nvidia-container-toolkit}.repo
+        /tmp/akmods-rpms/kmod-nvidia-$KERNEL_VERSION-$NVIDIA_AKMOD_VERSION.fc$RELEASE.rpm \
+        libva-nvidia-driver && \
+    # Remove the nvidia-settings launcher
+    rm --force /usr/share/applications/nvidia-settings.desktop
 
 
 #
@@ -93,9 +112,6 @@ RUN sed -i 's|#AutomaticUpdatePolicy=none|AutomaticUpdatePolicy=stage|g' /etc/rp
 
 # Disable Fedora Flatpak repo
 RUN systemctl disable flatpak-add-fedora-repos.service
-
-# Hide Nvidia settings app
-RUN rm --force /usr/share/applications/nvidia-settings.desktop
 
 # Copy files
 COPY files /
