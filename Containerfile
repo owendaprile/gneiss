@@ -75,9 +75,14 @@ RUN rpm-ostree override remove \
         # Others
         gnome-tour yelp
 
+# Install yafti
+RUN rpm-ostree install python3-pip libadwaita && \
+    pip install --prefix=/usr yafti && \
+    rpm-ostree uninstall python3-pip
+
 # Install 1Password
-COPY --from=ghcr.io/ublue-os/bling /modules/bling/installers/1password.sh .
-RUN chmod +x 1password.sh && ./1password.sh
+COPY --from=ghcr.io/ublue-os/bling /modules/bling/installers/1password.sh /tmp
+RUN chmod +x /tmp/1password.sh && /tmp/1password.sh
 
 # Install Tailscale
 RUN curl --output /etc/yum.repos.d/tailscale.repo https://pkgs.tailscale.com/stable/fedora/tailscale.repo && \
