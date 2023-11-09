@@ -51,7 +51,9 @@ RUN rpm-ostree override remove \
         gnome-classic-session gnome-shell-extension-apps-menu gnome-shell-extension-background-logo \
         gnome-shell-extension-launch-new-instance gnome-shell-extension-places-menu gnome-shell-extension-window-list \
         # Fedora customizations
-        fedora-bookmarks fedora-chromium-config fedora-flathub-remote fedora-third-party fedora-workstation-repositories
+        fedora-bookmarks fedora-chromium-config fedora-flathub-remote fedora-third-party fedora-workstation-repositories \
+        # Others
+        gnome-tour yelp
 
 # Install 1Password
 RUN mkdir --parents /var/opt && \
@@ -68,9 +70,15 @@ RUN curl --output /etc/yum.repos.d/tailscale.repo https://pkgs.tailscale.com/sta
     rm --force /etc/yum.repos.d/tailscale.repo && \
     systemctl enable tailscaled.service
 
+# Install Mullvad
+RUN wget --no-verbose --output-document /tmp/mullvad.rpm https://mullvad.net/en/download/app/rpm/latest && \
+    rpm-ostree install /tmp/mullvad.rpm && \
+    rm --force /tmp/mullvad.rpm && \
+    systemctl enable mullvad-daemon.service
+
 # Install packages in the base image
 RUN rpm-ostree install \
-        gnome-shell-extension-appindicator fish intelone-mono-fonts \
+        android-tools gnome-shell-extension-appindicator fish intelone-mono-fonts langpacks-en steam-devices \
         https://code.visualstudio.com/sha/download?build=stable&os=linux-rpm-x64
 
 
