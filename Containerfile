@@ -76,13 +76,8 @@ RUN rpm-ostree override remove \
         gnome-tour yelp
 
 # Install 1Password
-RUN mkdir --parents /var/opt && \
-    rpm-ostree install \
-        https://downloads.1password.com/linux/rpm/stable/x86_64/1password-latest.rpm \
-        https://downloads.1password.com/linux/rpm/stable/x86_64/1password-cli-latest.x86_64.rpm && \
-    rm --force /etc/yum.repos.d/1password.repo && \
-    mv /var/opt/1Password /usr/lib/1password && \
-    echo "L /opt/1Password - - - - ../../usr/lib/1password" > /usr/lib/tmpfiles.d/1password.conf
+COPY --from=ghcr.io/ublue-os/bling /modules/bling/installers/1password.sh .
+RUN chmod +x 1password.sh && ./1password.sh
 
 # Install Tailscale
 RUN curl --output /etc/yum.repos.d/tailscale.repo https://pkgs.tailscale.com/stable/fedora/tailscale.repo && \
@@ -91,15 +86,17 @@ RUN curl --output /etc/yum.repos.d/tailscale.repo https://pkgs.tailscale.com/sta
     systemctl enable tailscaled.service
 
 # Install Mullvad
-RUN wget --no-verbose --output-document /tmp/mullvad.rpm https://mullvad.net/en/download/app/rpm/latest && \
-    rpm-ostree install /tmp/mullvad.rpm && \
-    rm --force /tmp/mullvad.rpm && \
-    systemctl enable mullvad-daemon.service
+#RUN wget --no-verbose --output-document /tmp/mullvad.rpm https://mullvad.net/en/download/app/rpm/latest && \
+#    rpm -Uvh /tmp/mullvad.rpm && \
+#    rm --force /tmp/mullvad.rpm && \
+#    mv --verbose '/var/opt/Mullvad VPN' /usr/lib/mullvad-vpn && \
+#    echo "L '/opt/Mullvad VPN' - - - - ../../usr/lib/mullvad-vpn" > /usr/lib/tmpfiles.d/mullvad-vpn.conf && \
+#    systemctl enable mullvad-daemon.service
 
 # Install packages in the base image
 RUN rpm-ostree install \
         android-tools gnome-shell-extension-appindicator fish intelone-mono-fonts langpacks-en steam-devices \
-        https://code.visualstudio.com/sha/download?build=stable&os=linux-rpm-x64
+        'https://code.visualstudio.com/sha/download?build=stable&os=linux-rpm-x64'
 
 
 #
@@ -122,6 +119,8 @@ COPY files /
 #
 
 RUN rpm-ostree uninstall rpmfusion-free-release rpmfusion-nonfree-release
+
+RUN tree /opt /var/opt ; exit 0
 
 RUN rm --force --recursive /tmp/* /var/* && \
     ostree container commit
