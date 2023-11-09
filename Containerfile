@@ -90,14 +90,6 @@ RUN curl --output /etc/yum.repos.d/tailscale.repo https://pkgs.tailscale.com/sta
     rm --force /etc/yum.repos.d/tailscale.repo && \
     systemctl enable tailscaled.service
 
-# Install Mullvad
-#RUN wget --no-verbose --output-document /tmp/mullvad.rpm https://mullvad.net/en/download/app/rpm/latest && \
-#    rpm -Uvh /tmp/mullvad.rpm && \
-#    rm --force /tmp/mullvad.rpm && \
-#    mv --verbose '/var/opt/Mullvad VPN' /usr/lib/mullvad-vpn && \
-#    echo "L '/opt/Mullvad VPN' - - - - ../../usr/lib/mullvad-vpn" > /usr/lib/tmpfiles.d/mullvad-vpn.conf && \
-#    systemctl enable mullvad-daemon.service
-
 # Install packages in the base image
 RUN rpm-ostree install \
         android-tools gnome-shell-extension-appindicator fish intelone-mono-fonts langpacks-en steam-devices \
