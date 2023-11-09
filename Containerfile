@@ -51,7 +51,8 @@ RUN rpm-ostree override remove \
         gnome-classic-session gnome-shell-extension-apps-menu gnome-shell-extension-background-logo \
         gnome-shell-extension-launch-new-instance gnome-shell-extension-places-menu gnome-shell-extension-window-list \
         # Fedora customizations
-        fedora-bookmarks fedora-chromium-config fedora-flathub-remote fedora-third-party fedora-workstation-repositories \
+        fedora-bookmarks fedora-chromium-config fedora-flathub-remote fedora-third-party fedora-workstation-backgrounds \
+        fedora-workstation-repositories \
         # Others
         gnome-tour yelp
 
@@ -92,6 +93,9 @@ RUN sed -i 's|#AutomaticUpdatePolicy=none|AutomaticUpdatePolicy=stage|g' /etc/rp
 
 # Disable Fedora Flatpak repo
 RUN systemctl disable flatpak-add-fedora-repos.service
+
+# Hide Nvidia settings app
+RUN rm --force /usr/share/applications/nvidia-settings.desktop
 
 # Copy files
 COPY files /

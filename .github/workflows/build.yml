@@ -26,7 +26,7 @@ jobs:
 
       - name: Get date for image tag
         id: date
-        run: echo "DATE=$(date +'%y%m%d')" >> $GITHUB_ENV
+        run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
 
       - name: Build image
         id: build_image
