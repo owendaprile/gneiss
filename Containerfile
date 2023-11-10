@@ -84,7 +84,11 @@ RUN rpm-ostree install python3-pip libadwaita && \
 
 # Install 1Password
 COPY --from=ghcr.io/ublue-os/bling /modules/bling/installers/1password.sh /tmp
-RUN chmod +x /tmp/1password.sh && /tmp/1password.sh
+RUN chmod +x /tmp/1password.sh && \
+        /tmp/1password.sh && \
+        rm --force /tmp/1password.sh && \
+        # Force the symlink '/opt/1Password -> /usr/lib/1Password' to be created
+        sed --in-place "s|^L|L+|g" /usr/lib/tmpfiles.d/onepassword.conf
 
 # Install Tailscale
 RUN curl --output /etc/yum.repos.d/tailscale.repo https://pkgs.tailscale.com/stable/fedora/tailscale.repo && \
