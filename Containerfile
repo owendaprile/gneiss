@@ -66,6 +66,8 @@ RUN rpm-ostree override remove \
 
 # Remove unwanted packages from base image
 RUN rpm-ostree override remove \
+        # GNOME Terminal
+        gnome-terminal gnome-terminal-nautilus
         # GNOME Classic session
         gnome-classic-session gnome-shell-extension-apps-menu gnome-shell-extension-background-logo \
         gnome-shell-extension-launch-new-instance gnome-shell-extension-places-menu gnome-shell-extension-window-list \
@@ -92,7 +94,8 @@ RUN curl --output /etc/yum.repos.d/tailscale.repo https://pkgs.tailscale.com/sta
 
 # Install packages in the base image
 RUN rpm-ostree install \
-        android-tools gnome-shell-extension-appindicator fish intelone-mono-fonts langpacks-en steam-devices \
+        android-tools gnome-console gnome-shell-extension-appindicator fish intelone-mono-fonts \
+        langpacks-en steam-devices \
         'https://code.visualstudio.com/sha/download?build=stable&os=linux-rpm-x64'
 
 
