@@ -98,8 +98,12 @@ RUN curl --output /etc/yum.repos.d/tailscale.repo https://pkgs.tailscale.com/sta
 
 # Install packages in the base image
 RUN rpm-ostree install \
-        android-tools gnome-console gnome-shell-extension-appindicator fish intelone-mono-fonts \
-        langpacks-en steam-devices \
+        # GNOME
+        gnome-console gnome-shell-extension-appindicator gnome-tweaks \
+        # Fonts
+        intelone-mono-fonts \
+        # Other
+        android-tools fish langpacks-en steam-devices \
         'https://code.visualstudio.com/sha/download?build=stable&os=linux-rpm-x64'
 
 
