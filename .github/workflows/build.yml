@@ -2,8 +2,6 @@
 name: build-image
 on:
   push:
-    # branches:
-      # - release
   schedule:
     - cron: 0 18 * * 5
   workflow_dispatch:
@@ -27,6 +25,21 @@ jobs:
         id: date
         run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
 
+      - name: Update build counter
+        run: |
+          set -x
+
+          if [ "$LAST_RUN_DATE" == "`date +'%Y%m%d'`" ]; then
+            echo "BUILD_COUNT=$((BUILD_COUNT + 1))" >> $GITHUB_ENV
+          else
+            echo "BUILD_COUNT=0" >> $GITHUB_ENV
+          fi
+
+          echo "LAST_RUN_DATE=`date +'%Y%m%d'`" >> $GITHUB_ENV
+        env:
+          BUILD_COUNT: ${{ vars.BUILD_COUNT }}
+          LAST_RUN_DATE: ${{ vars.LAST_RUN_DATE }}
+
       - name: Build image
         id: build_image
         uses: redhat-actions/buildah-build@v2
@@ -34,7 +47,7 @@ jobs:
           containerfiles: |
             ./Containerfile
           image: gneiss
-          tags: ${{ env.FEDORA_MAJOR_VERSION }} ${{ env.FEDORA_MAJOR_VERSION }}.${{ env.DATE }}
+          tags: ${{ env.FEDORA_MAJOR_VERSION }} ${{ env.FEDORA_MAJOR_VERSION }}.${{ env.DATE }}.${{ env.BUILD_COUNT }}
           build-args: |
             FEDORA_MAJOR_VERSION=${{ env.FEDORA_MAJOR_VERSION }}
 
@@ -50,3 +63,17 @@ jobs:
           registry: ${{ env.IMAGE_REGISTRY }}
           username: ${{ env.REGISTRY_USER }}
           password: ${{ env.REGISTRY_PASSWORD }}
+
+      - name: Update build count repository variable
+        uses: action-pack/set-variable@v1
+        with:
+          name: "BUILD_COUNT"
+          value: ${{ env.BUILD_COUNT }}
+          token: ${{ secrets.SET_VARIABLE_TOKEN }}
+
+      - name: Update last run date repository variable
+        uses: action-pack/set-variable@v1
+        with:
+          name: "LAST_RUN_DATE"
+          value: ${{ env.LAST_RUN_DATE }}
+          token: ${{ secrets.SET_VARIABLE_TOKEN }}
