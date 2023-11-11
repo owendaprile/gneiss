@@ -40,20 +40,6 @@ jobs:
           BUILD_COUNT: ${{ vars.BUILD_COUNT }}
           LAST_RUN_DATE: ${{ vars.LAST_RUN_DATE }}
 
-      - name: Update build count repository variable
-        uses: action-pack/set-variable@v1
-        with:
-          name: "BUILD_COUNT"
-          value: ${{ env.BUILD_COUNT }}
-          token: ${{ secrets.SET_VARIABLE_TOKEN }}
-
-      - name: Update last run date repository variable
-        uses: action-pack/set-variable@v1
-        with:
-          name: "LAST_RUN_DATE"
-          value: ${{ env.LAST_RUN_DATE }}
-          token: ${{ secrets.SET_VARIABLE_TOKEN }}
-
       - name: Build image
         id: build_image
         uses: redhat-actions/buildah-build@v2
@@ -77,3 +63,17 @@ jobs:
           registry: ${{ env.IMAGE_REGISTRY }}
           username: ${{ env.REGISTRY_USER }}
           password: ${{ env.REGISTRY_PASSWORD }}
+
+      - name: Update build count repository variable
+        uses: action-pack/set-variable@v1
+        with:
+          name: "BUILD_COUNT"
+          value: ${{ env.BUILD_COUNT }}
+          token: ${{ secrets.SET_VARIABLE_TOKEN }}
+
+      - name: Update last run date repository variable
+        uses: action-pack/set-variable@v1
+        with:
+          name: "LAST_RUN_DATE"
+          value: ${{ env.LAST_RUN_DATE }}
+          token: ${{ secrets.SET_VARIABLE_TOKEN }}
