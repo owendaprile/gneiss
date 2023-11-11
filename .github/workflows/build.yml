@@ -43,15 +43,15 @@ jobs:
         uses: action-pack/set-variable@v1
         with:
           name: "BUILD_COUNT"
-          value: {{ env.BUILD_COUNT }}
-          token: {{ github.token }}
+          value: ${{ env.BUILD_COUNT }}
+          token: ${{ github.token }}
 
       - name: Update last run date repository variable
         uses: action-pack/set-variable@v1
         with:
           name: "LAST_RUN_DATE"
-          value: {{ env.LAST_RUN_DATE }}
-          token: {{ github.token }}
+          value: ${{ env.LAST_RUN_DATE }}
+          token: ${{ github.token }}
 
 #      - name: Build image
 #        id: build_image
