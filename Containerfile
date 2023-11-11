@@ -40,7 +40,7 @@ COPY --from=nvidia-builder /rpms /tmp/akmods-rpms
 RUN source /tmp/akmods-rpms/nvidia-vars && \
     rpm-ostree install \
         /tmp/akmods-rpms/kmod-nvidia-$KERNEL_VERSION-$NVIDIA_AKMOD_VERSION.fc$RELEASE.rpm \
-        libva-nvidia-driver && \
+        libva-nvidia-driver xorg-x11-drv-nvidia-cuda && \
     # Remove the nvidia-settings launcher
     rm --force /usr/share/applications/nvidia-settings.desktop
 
