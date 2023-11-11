@@ -2,8 +2,6 @@
 name: build-image
 on:
   push:
-    # branches:
-      # - release
   schedule:
     - cron: 0 18 * * 5
   workflow_dispatch:
@@ -15,9 +13,10 @@ jobs:
   push-ghcr:
     name: Build and push image
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
+#    permissions:
+#      contents: read
+#      packages: write
+    permissions: write-all
 
     steps:
       - name: Checkout repository
@@ -27,26 +26,53 @@ jobs:
         id: date
         run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
 
-      - name: Build image
-        id: build_image
-        uses: redhat-actions/buildah-build@v2
-        with:
-          containerfiles: |
-            ./Containerfile
-          image: gneiss
-          tags: ${{ env.FEDORA_MAJOR_VERSION }} ${{ env.FEDORA_MAJOR_VERSION }}.${{ env.DATE }}
-          build-args: |
-            FEDORA_MAJOR_VERSION=${{ env.FEDORA_MAJOR_VERSION }}
+      - name: Update build counter
+        run: |
+          if [ "$LAST_RUN_DATE" == "`date +'%Y%m%d'`" ]; then
+            echo "BUILD_COUNT=$((BUILD_COUNT + 1))" >> $GITHUB_ENV
+          else
+            echo "BUILD_COUNT=0" >> $GITHUB_ENV
+          fi
 
-      - name: Push image to registry
-        uses: redhat-actions/push-to-registry@v2
-        id: push
+          echo "LAST_RUN_DATE=`date +'%Y%m%d'`" >> $GITHUB_ENV
         env:
-          REGISTRY_USER: ${{ github.actor }}
-          REGISTRY_PASSWORD: ${{ github.token }}
+          BUILD_COUNT: ${{ vars.BUILD_COUNT }}
+          LAST_RUN_DATE: ${{ vars.LAST_RUN_DATE }}
+
+      - name: Update build count repository variable
+        uses: action-pack/set-variable@v1
         with:
-          image: ${{ steps.build_image.outputs.image }}
-          tags: ${{ steps.build_image.outputs.tags }}
-          registry: ${{ env.IMAGE_REGISTRY }}
-          username: ${{ env.REGISTRY_USER }}
-          password: ${{ env.REGISTRY_PASSWORD }}
+          name: "BUILD_COUNT"
+          value: {{ env.BUILD_COUNT }}
+          token: {{ github.token }}
+
+      - name: Update last run date repository variable
+        uses: action-pack/set-variable@v1
+        with:
+          name: "LAST_RUN_DATE"
+          value: {{ env.LAST_RUN_DATE }}
+          token: {{ github.token }}
+
+#      - name: Build image
+#        id: build_image
+#        uses: redhat-actions/buildah-build@v2
+#        with:
+#          containerfiles: |
+#            ./Containerfile
+#          image: gneiss
+#          tags: ${{ env.FEDORA_MAJOR_VERSION }} ${{ env.FEDORA_MAJOR_VERSION }}.${{ env.DATE }}
+#          build-args: |
+#            FEDORA_MAJOR_VERSION=${{ env.FEDORA_MAJOR_VERSION }}
+#
+#      - name: Push image to registry
+#        uses: redhat-actions/push-to-registry@v2
+#        id: push
+#        env:
+#          REGISTRY_USER: ${{ github.actor }}
+#          REGISTRY_PASSWORD: ${{ github.token }}
+#        with:
+#          image: ${{ steps.build_image.outputs.image }}
+#          tags: ${{ steps.build_image.outputs.tags }}
+#          registry: ${{ env.IMAGE_REGISTRY }}
+#          username: ${{ env.REGISTRY_USER }}
+#          password: ${{ env.REGISTRY_PASSWORD }}
