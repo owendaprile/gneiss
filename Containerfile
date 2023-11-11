@@ -96,6 +96,11 @@ RUN curl --output /etc/yum.repos.d/tailscale.repo https://pkgs.tailscale.com/sta
     rm --force /etc/yum.repos.d/tailscale.repo && \
     systemctl enable tailscaled.service
 
+# Install Insync
+RUN echo -e "[insync]\nbaseurl=http://yum.insync.io/fedora/\$releasever/\ngpgcheck=1\ngpgkey=https://d2t3ff60b2tol4.cloudfront.net/repomd.xml.key" >> /etc/yum.repos.d/insync.repo && \
+    rpm-ostree install insync && \
+    rm --force /etc/yum.repos.d/insync.repo
+
 # Install packages in the base image
 RUN rpm-ostree install \
         # GNOME
