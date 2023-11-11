@@ -103,8 +103,8 @@ RUN rpm-ostree install \
         # Fonts
         intelone-mono-fonts \
         # Other
-        android-tools fish langpacks-en steam-devices \
-        'https://code.visualstudio.com/sha/download?build=stable&os=linux-rpm-x64'
+        android-tools fish langpacks-en steam-devices
+        #'https://code.visualstudio.com/sha/download?build=stable&os=linux-rpm-x64'
 
 
 #
