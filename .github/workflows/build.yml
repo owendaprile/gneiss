@@ -13,10 +13,9 @@ jobs:
   push-ghcr:
     name: Build and push image
     runs-on: ubuntu-latest
-#    permissions:
-#      contents: read
-#      packages: write
-    permissions: write-all
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout repository
@@ -28,6 +27,8 @@ jobs:
 
       - name: Update build counter
         run: |
+          set -x
+
           if [ "$LAST_RUN_DATE" == "`date +'%Y%m%d'`" ]; then
             echo "BUILD_COUNT=$((BUILD_COUNT + 1))" >> $GITHUB_ENV
           else
@@ -44,14 +45,14 @@ jobs:
         with:
           name: "BUILD_COUNT"
           value: ${{ env.BUILD_COUNT }}
-          token: ${{ github.token }}
+          token: ${{ secrets.SET_VARIABLE_TOKEN }}
 
       - name: Update last run date repository variable
         uses: action-pack/set-variable@v1
         with:
           name: "LAST_RUN_DATE"
           value: ${{ env.LAST_RUN_DATE }}
-          token: ${{ github.token }}
+          token: ${{ secrets.SET_VARIABLE_TOKEN }}
 
 #      - name: Build image
 #        id: build_image
