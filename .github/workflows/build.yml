@@ -50,6 +50,9 @@ jobs:
           tags: ${{ env.FEDORA_MAJOR_VERSION }} ${{ env.FEDORA_MAJOR_VERSION }}.${{ env.DATE }}.${{ env.BUILD_COUNT }}
           build-args: |
             FEDORA_MAJOR_VERSION=${{ env.FEDORA_MAJOR_VERSION }}
+          labels: |
+            org.opencontainers.image.title=gneiss
+            org.opencontainers.image.version=${{ env.FEDORA_MAJOR_VERSION }}.${{ env.DATE }}.${{ env.BUILD_COUNT }}
 
       - name: Push image to registry
         uses: redhat-actions/push-to-registry@v2
