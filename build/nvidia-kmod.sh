@@ -12,15 +12,16 @@ NVIDIA_AKMOD_VERSION="$(basename "$(rpm -q akmod-nvidia --queryformat '%{VERSION
 # Building the kmod requires a linker at `ld`, but `alternatives` doesn't work
 # during the build.
 ln --force --symbolic --relative /usr/bin/ld.gold /usr/bin/ld
-# `akmods` tries to install the kmod using `dnf`
-ln --force --symbolic --relative /usr/bin/rpm-ostree /usr/bin/dnf
+# `akmods` tries to install the built kmods with `dnf`, but we don't need that,
+# so we can just fool it.
+ln --force --symbolic --relative /usr/bin/true /usr/bin/dnf
 
 # Build the kmod
 akmods --force --kernels "$KERNEL_VERSION" --kmod nvidia
 
 # Make sure all modules were built successfully
-modinfo /usr/lib/modules/$KERNEL_VERSION/extra/nvidia/nvidia{,-drm,-modeset,-peermem,-uvm}.ko.xz > /dev/null ||
-(cat /var/cache/akmods/nvidia/$NVIDIA_AKMOD_VERSION-for-$KERNEL_VERSION.failed.log && exit 1)
+[ -f /var/cache/akmods/nvidia/kmod-nvidia-${KERNEL_VERSION}-${NVIDIA_AKMOD_VERSION}.fc${RELEASE}.rpm ] ||
+  (cat /var/cache/akmods/nvidia/$NVIDIA_AKMOD_VERSION-for-$KERNEL_VERSION.failed.log && exit 1)
 
 mkdir -p /rpms
 
