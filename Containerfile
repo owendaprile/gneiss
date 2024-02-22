@@ -1,19 +1,17 @@
 ##
-## Build the Nvidia kmod
+## Get Mesa with NVK
 ##
 
 ARG FEDORA_MAJOR_VERSION="${FEDORA_MAJOR_VERSION:-39}"
 
-FROM quay.io/fedora-ostree-desktops/silverblue:${FEDORA_MAJOR_VERSION} AS nvidia-builder
+FROM quay.io/fedora/fedora:rawhide AS nvk-builder
 
-ARG FEDORA_MAJOR_VERSION="${FEDORA_MAJOR_VERSION:-39}"
+RUN dnf --assumeyes install dnf-plugins-core
 
-COPY build/nvidia-kmod.sh .
-
-RUN rpm-ostree install \
-        https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORA_MAJOR_VERSION}.noarch.rpm \
-        https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORA_MAJOR_VERSION}.noarch.rpm && \
-    ./nvidia-kmod.sh
+WORKDIR /mesa-rpms
+RUN dnf --assumeyes download --arch x86_64 \
+        mesa-dri-drivers mesa-filesystem mesa-libEGL mesa-libgbm mesa-libGL \
+        mesa-libglapi mesa-libxatracker mesa-va-drivers mesa-vulkan-drivers
 
 
 ##
@@ -31,18 +29,11 @@ RUN rpm-ostree install \
 
 
 #
-# Nvidia driver
+# NVK
 #
 
-COPY --from=nvidia-builder /rpms /tmp/akmods-rpms
-
-# Install Nvidia kmod and VA-API driver
-RUN source /tmp/akmods-rpms/nvidia-vars && \
-    rpm-ostree install \
-        /tmp/akmods-rpms/kmod-nvidia-$KERNEL_VERSION-$NVIDIA_AKMOD_VERSION.fc$RELEASE.rpm \
-        libva-nvidia-driver xorg-x11-drv-nvidia-cuda && \
-    # Remove the nvidia-settings launcher
-    rm --force /usr/share/applications/nvidia-settings.desktop
+COPY --from=nvk-builder /mesa-rpms /tmp/mesa-rpms
+RUN rpm-ostree override replace /tmp/mesa-rpms/mesa-*.rpm
 
 
 #
@@ -53,9 +44,6 @@ RUN rpm-ostree override remove \
         # ffmpeg
         libavutil-free libswresample-free libpostproc-free libswscale-free libavcodec-free libavformat-free libavfilter-free \
         --install=ffmpeg-libs \
-        # VA-API and VDPAU for AMD
-        mesa-va-drivers \
-        --install=mesa-va-drivers-freeworld --install=mesa-vdpau-drivers-freeworld \
         # VA-API for Intel
         --install=intel-media-driver
 
@@ -101,10 +89,9 @@ RUN rpm-ostree install \
         # GNOME
         gnome-console gnome-shell-extension-appindicator gnome-tweaks \
         # Fonts
-        intelone-mono-fonts \
+        intelone-mono-fonts jetbrains-mono-fonts-all \
         # Other
         android-tools fish langpacks-en steam-devices
-        #'https://code.visualstudio.com/sha/download?build=stable&os=linux-rpm-x64'
 
 
 #
