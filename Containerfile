@@ -1,18 +1,4 @@
-##
-## Get Mesa with NVK
-##
-
-ARG FEDORA_MAJOR_VERSION="${FEDORA_MAJOR_VERSION:-39}"
-
-FROM quay.io/fedora/fedora:rawhide AS nvk-builder
-
-RUN dnf --assumeyes install dnf-plugins-core
-
-WORKDIR /mesa-rpms
-RUN dnf --assumeyes download --arch x86_64 \
-        mesa-dri-drivers mesa-filesystem mesa-libEGL mesa-libgbm mesa-libGL \
-        mesa-libglapi mesa-libxatracker mesa-va-drivers mesa-vulkan-drivers
-
+ARG FEDORA_MAJOR_VERSION="${FEDORA_MAJOR_VERSION:-40}"
 
 ##
 ## Build the system image
@@ -20,20 +6,12 @@ RUN dnf --assumeyes download --arch x86_64 \
 
 FROM quay.io/fedora-ostree-desktops/silverblue:${FEDORA_MAJOR_VERSION}
 
-ARG FEDORA_MAJOR_VERSION="${FEDORA_MAJOR_VERSION:-39}"
+ARG FEDORA_MAJOR_VERSION="${FEDORA_MAJOR_VERSION:-40}"
 
 # Add rpmfusion repositories
 RUN rpm-ostree install \
         https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORA_MAJOR_VERSION}.noarch.rpm \
         https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORA_MAJOR_VERSION}.noarch.rpm
-
-
-#
-# NVK
-#
-
-COPY --from=nvk-builder /mesa-rpms /tmp/mesa-rpms
-RUN rpm-ostree override replace /tmp/mesa-rpms/mesa-*.rpm
 
 
 #
@@ -43,10 +21,7 @@ RUN rpm-ostree override replace /tmp/mesa-rpms/mesa-*.rpm
 RUN rpm-ostree override remove \
         # ffmpeg
         libavutil-free libswresample-free libpostproc-free libswscale-free libavcodec-free libavformat-free libavfilter-free \
-        --install=ffmpeg-libs \
-        # VA-API for Intel
-        --install=intel-media-driver
-
+        --install=ffmpeg-libs
 
 #
 # Other packages
@@ -80,7 +55,7 @@ RUN curl --output /etc/yum.repos.d/tailscale.repo https://pkgs.tailscale.com/sta
     systemctl enable tailscaled.service
 
 # Install Insync
-RUN echo -e "[insync]\nbaseurl=http://yum.insync.io/fedora/\$releasever/\ngpgcheck=1\ngpgkey=https://d2t3ff60b2tol4.cloudfront.net/repomd.xml.key" >> /etc/yum.repos.d/insync.repo && \
+RUN echo -e "[insync]\nbaseurl=http://yum.insync.io/fedora/39/\ngpgcheck=1\ngpgkey=https://d2t3ff60b2tol4.cloudfront.net/repomd.xml.key" >> /etc/yum.repos.d/insync.repo && \
     rpm-ostree install insync && \
     rm --force /etc/yum.repos.d/insync.repo
 

@@ -6,7 +6,7 @@ on:
     - cron: 0 18 * * 5
   workflow_dispatch:
 env:
-  FEDORA_MAJOR_VERSION: 39
+  FEDORA_MAJOR_VERSION: 40
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
 
 jobs:
