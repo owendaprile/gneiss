@@ -10,6 +10,7 @@ RUN dnf --assumeyes install dnf-plugins-core
 
 WORKDIR /mesa-rpms
 RUN dnf --assumeyes download --arch x86_64 \
+        llvm-libs \
         mesa-dri-drivers mesa-filesystem mesa-libEGL mesa-libgbm mesa-libGL \
         mesa-libglapi mesa-libxatracker mesa-va-drivers mesa-vulkan-drivers
 
@@ -33,7 +34,7 @@ RUN rpm-ostree install \
 #
 
 COPY --from=nvk-builder /mesa-rpms /tmp/mesa-rpms
-RUN rpm-ostree override replace /tmp/mesa-rpms/mesa-*.rpm
+RUN rpm-ostree override replace /tmp/mesa-rpms/*.rpm
 
 
 #
