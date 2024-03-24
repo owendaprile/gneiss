@@ -90,7 +90,7 @@ RUN rpm-ostree install \
         # GNOME
         gnome-console gnome-shell-extension-appindicator gnome-tweaks \
         # Fonts
-        intelone-mono-fonts jetbrains-mono-fonts-all \
+        intel-one-mono-fonts jetbrains-mono-fonts \
         # Other
         android-tools fish langpacks-en steam-devices
 
