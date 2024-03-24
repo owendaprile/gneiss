@@ -67,7 +67,7 @@ RUN rpm-ostree override remove \
         gnome-tour yelp
 
 # Install 1Password
-COPY --from=ghcr.io/ublue-os/bling /modules/bling/installers/1password.sh /tmp
+COPY --from=ghcr.io/blue-build/modules /modules/bling/installers/1password.sh /tmp
 RUN chmod +x /tmp/1password.sh && \
         /tmp/1password.sh && \
         rm --force /tmp/1password.sh && \
