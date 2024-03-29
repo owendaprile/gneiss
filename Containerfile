@@ -1,27 +1,12 @@
 ##
-## Get Mesa with NVK
-##
-
-ARG FEDORA_MAJOR_VERSION="${FEDORA_MAJOR_VERSION:-39}"
-
-FROM quay.io/fedora/fedora:rawhide AS nvk-builder
-
-RUN dnf --assumeyes install dnf-plugins-core
-
-WORKDIR /mesa-rpms
-RUN dnf --assumeyes download --arch x86_64 \
-        llvm-libs \
-        mesa-dri-drivers mesa-filesystem mesa-libEGL mesa-libgbm mesa-libGL \
-        mesa-libglapi mesa-libxatracker mesa-va-drivers mesa-vulkan-drivers
-
-
-##
 ## Build the system image
 ##
 
+ARG FEDORA_MAJOR_VERSION
+
 FROM quay.io/fedora-ostree-desktops/silverblue:${FEDORA_MAJOR_VERSION}
 
-ARG FEDORA_MAJOR_VERSION="${FEDORA_MAJOR_VERSION:-39}"
+ARG FEDORA_MAJOR_VERSION
 
 # Add rpmfusion repositories
 RUN rpm-ostree install \
@@ -30,23 +15,14 @@ RUN rpm-ostree install \
 
 
 #
-# NVK
-#
-
-COPY --from=nvk-builder /mesa-rpms /tmp/mesa-rpms
-RUN rpm-ostree override replace /tmp/mesa-rpms/*.rpm
-
-
-#
 # Video codecs and hardware acceleration
 #
 
 RUN rpm-ostree override remove \
         # ffmpeg
-        libavutil-free libswresample-free libpostproc-free libswscale-free libavcodec-free libavformat-free libavfilter-free \
-        --install=ffmpeg-libs \
-        # VA-API for Intel
-        --install=intel-media-driver
+        libavutil-free libswresample-free libpostproc-free libswscale-free \
+        libavcodec-free libavformat-free libavfilter-free \
+        --install=ffmpeg-libs
 
 
 #
@@ -58,11 +34,12 @@ RUN rpm-ostree override remove \
         # GNOME Terminal
         gnome-terminal gnome-terminal-nautilus \
         # GNOME Classic session
-        gnome-classic-session gnome-shell-extension-apps-menu gnome-shell-extension-background-logo \
-        gnome-shell-extension-launch-new-instance gnome-shell-extension-places-menu gnome-shell-extension-window-list \
+        gnome-classic-session gnome-classic-session-xsession gnome-shell-extension-apps-menu \
+        gnome-shell-extension-background-logo gnome-shell-extension-launch-new-instance \
+        gnome-shell-extension-places-menu gnome-shell-extension-window-list \
         # Fedora customizations
-        fedora-bookmarks fedora-chromium-config fedora-flathub-remote fedora-third-party fedora-workstation-backgrounds \
-        fedora-workstation-repositories \
+        fedora-bookmarks fedora-chromium-config fedora-flathub-remote fedora-third-party\
+        fedora-workstation-backgrounds fedora-workstation-repositories \
         # Others
         gnome-tour yelp
 
