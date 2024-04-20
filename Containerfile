@@ -70,7 +70,7 @@ RUN rpm-ostree install \
         # Fonts
         intel-one-mono-fonts jetbrains-mono-fonts \
         # Other
-        android-tools fish langpacks-en steam-devices
+        android-tools fish langpacks-en restic steam-devices
 
 
 #
