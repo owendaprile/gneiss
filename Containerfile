@@ -21,8 +21,9 @@ RUN rpm-ostree install \
 RUN rpm-ostree override remove \
         # ffmpeg
         libavutil-free libswresample-free libpostproc-free libswscale-free \
-        libavcodec-free libavformat-free libavfilter-free \
-        --install=ffmpeg-libs \
+        libavcodec-free libavformat-free libavfilter-free libavdevice-free \
+        ffmpeg-free \
+        --install=ffmpeg \
         --install=libheif-tools
 
 
