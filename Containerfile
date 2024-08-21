@@ -67,7 +67,7 @@ RUN echo -e "[insync]\nbaseurl=http://yum.insync.io/fedora/\$releasever/\ngpgche
 # Install packages in the base image
 RUN rpm-ostree install \
         # GNOME
-        gnome-console gnome-shell-extension-appindicator gnome-tweaks ptyxis \
+        gnome-shell-extension-appindicator gnome-tweaks ptyxis \
         # Terminal
         bat fish just \
         # Fonts
