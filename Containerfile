@@ -64,12 +64,18 @@ RUN echo -e "[insync]\nbaseurl=http://yum.insync.io/fedora/\$releasever/\ngpgche
     rpm-ostree install insync && \
     rm --force /etc/yum.repos.d/insync.repo
 
+# Install yadm
+RUN echo -e "[yadm]\nbaseurl=https://download.opensuse.org/repositories/home:/TheLocehiliosan:/yadm/Fedora_\$releasever/\ngpgcheck=1\ngpgkey=https://download.opensuse.org/repositories/home:/TheLocehiliosan:/yadm/Fedora_\$releasever/repodata/repomd.xml.key" >> /etc/yum.repos.d/yadm.repo && \
+    rpm-ostree install yadm && \
+    rm --force /etc/yum.repos.d/yadm.repo && \
+    ostree container commit
+
 # Install packages in the base image
 RUN rpm-ostree install \
         # GNOME
         gnome-shell-extension-appindicator gnome-tweaks ptyxis \
         # Terminal
-        bat fish just \
+        bat fish helix just \
         # Fonts
         intel-one-mono-fonts jetbrains-mono-fonts \
         # Other
