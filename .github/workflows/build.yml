@@ -6,7 +6,7 @@ on:
     - cron: 0 18 * * 5
   workflow_dispatch:
 env:
-  FEDORA_MAJOR_VERSION: 41
+  # FEDORA_MAJOR_VERSION: 41
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
 
 jobs:
@@ -16,6 +16,9 @@ jobs:
     permissions:
       contents: read
       packages: write
+    strategy:
+      matrix:
+        MAJOR_VERSION: [40, 41]
 
     steps:
       - name: Checkout repository
@@ -47,12 +50,12 @@ jobs:
           containerfiles: |
             ./Containerfile
           image: gneiss
-          tags: ${{ env.FEDORA_MAJOR_VERSION }} ${{ env.FEDORA_MAJOR_VERSION }}.${{ env.DATE }}.${{ env.BUILD_COUNT }}
+          tags: ${{ matrix.MAJOR_VERSION }} ${{ matrix.MAJOR_VERSION }}.${{ env.DATE }}.${{ env.BUILD_COUNT }}
           build-args: |
-            FEDORA_MAJOR_VERSION=${{ env.FEDORA_MAJOR_VERSION }}
+            FEDORA_MAJOR_VERSION=${{ matrix.MAJOR_VERSION }}
           labels: |
             org.opencontainers.image.title=gneiss
-            org.opencontainers.image.version=${{ env.FEDORA_MAJOR_VERSION }}.${{ env.DATE }}.${{ env.BUILD_COUNT }}
+            org.opencontainers.image.version=${{ matrix.MAJOR_VERSION }}.${{ env.DATE }}.${{ env.BUILD_COUNT }}
 
       - name: Push image to registry
         uses: redhat-actions/push-to-registry@v2
