@@ -26,6 +26,12 @@ RUN rpm-ostree override remove \
         --install=ffmpeg \
         --install=libheif-tools
 
+RUN rpm-ostree override remove \
+        mesa-va-drivers \
+        --install mesa-va-drivers-freeworld \
+        --install mesa-vdpau-drivers-freeworld && \
+    ostree container commit
+
 
 #
 # Other packages
