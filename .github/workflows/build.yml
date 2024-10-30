@@ -6,7 +6,6 @@ on:
     - cron: 0 18 * * 5
   workflow_dispatch:
 env:
-  # FEDORA_MAJOR_VERSION: 41
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
 
 jobs:
@@ -19,6 +18,7 @@ jobs:
     strategy:
       matrix:
         MAJOR_VERSION: [40, 41]
+      fail-fast: false
 
     steps:
       - name: Checkout repository
