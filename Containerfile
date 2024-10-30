@@ -27,10 +27,13 @@ RUN for module in $(find /modules -type f -executable); do \
     rm --force --recursive --verbose /modules && \
     ostree container commit
 
-# Remove RPM Fusion repositories
+# Remove RPM Fusion repositories.
 RUN rpm-ostree uninstall rpmfusion-free-release rpmfusion-nonfree-release && \
     ostree container commit
 
-# Clean up image
+# Copy files into image.
+COPY ./files /
+
+# Clean up image.
 RUN rm --force --recursive --verbose /tmp/* /var/* && \
     ostree container commit
