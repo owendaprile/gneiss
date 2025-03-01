@@ -9,7 +9,7 @@ Gneiss is my custom build of Fedora Silverblue.
 - Builds new images weekly using GitHub Actions
 - And more!
 
-# Installation
+## Installation
 1. Install [Fedora Silverblue](https://fedoraproject.org/atomic-desktops/silverblue/)
 2. Run `rpm-ostree rebase ostree-unverified-registry:ghcr.io/owendaprile/gneiss:<version>`
 3. Reboot your system
