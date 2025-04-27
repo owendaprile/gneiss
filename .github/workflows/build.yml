@@ -17,7 +17,7 @@ jobs:
       packages: write
     strategy:
       matrix:
-        MAJOR_VERSION: [41, 42]
+        MAJOR_VERSION: [42]
       fail-fast: false
 
     steps:
