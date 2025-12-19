@@ -13,5 +13,4 @@ rpm-ostree install \
     gnome-shell-extension-appindicator \
     ptyxis fish \
     intel-one-mono-fonts jetbrains-mono-fonts \
-    steam-devices \
-    android-tools
+    steam-devices
