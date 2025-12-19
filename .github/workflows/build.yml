@@ -76,6 +76,7 @@ jobs:
 
       - name: Sign image
         run: |
+          echo "${{ github.token }}" | cosign login -u ${{ github.actor }} --password-stdin ghcr.io
           cosign sign --yes --key env://SIGNING_KEY ${{ steps.push.outputs.registry-path }}@${{ steps.push.outputs.digest }}
         env:
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
