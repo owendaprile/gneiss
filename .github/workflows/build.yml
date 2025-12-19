@@ -58,6 +58,11 @@ jobs:
             org.opencontainers.image.title=gneiss
             org.opencontainers.image.version=${{ matrix.MAJOR_VERSION }}.${{ env.DATE }}.${{ env.BUILD_COUNT }}
 
+      - name: Copy signing key and password
+        run: |
+          echo "${{ secrets.SIGNING_KEY }}" > cosign.key
+          echo "${{ secrets.SIGNING_KEY_PASSWORD }}" > cosign.pwd
+
       - name: Push image to registry
         uses: redhat-actions/push-to-registry@v2
         id: push
@@ -70,17 +75,13 @@ jobs:
           registry: ${{ env.IMAGE_REGISTRY }}
           username: ${{ env.REGISTRY_USER }}
           password: ${{ env.REGISTRY_PASSWORD }}
+          extra-args: |
+            --sign-by-sigstore-private-key=cosign.key
+            --sign-passphrase-file=cosign.pwd
 
-      - name: Install cosign
-        uses: sigstore/cosign-installer@v4.0.0
-
-      - name: Sign image
-        run: |
-          echo "${{ github.token }}" | cosign login -u ${{ github.actor }} --password-stdin ghcr.io
-          cosign sign --yes --key env://SIGNING_KEY ${{ steps.push.outputs.registry-path }}@${{ steps.push.outputs.digest }}
-        env:
-          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
-          COSIGN_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+      - name: Clean up secrets
+        if: always()
+        run: rm --force cosign.key cosign.pwd
 
       - name: Update build count repository variable
         uses: action-pack/set-variable@v1
