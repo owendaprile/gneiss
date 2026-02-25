@@ -11,4 +11,5 @@ rpm-ostree override remove \
 # Add hardware decoding for all formats.
 rpm-ostree override remove \
     mesa-va-drivers \
-    --install mesa-va-drivers-freeworld --install mesa-vdpau-drivers-freeworld
+    --install mesa-va-drivers-freeworld #\
+    # --install mesa-vdpau-drivers-freeworld
