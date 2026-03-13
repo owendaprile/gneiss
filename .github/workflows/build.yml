@@ -25,9 +25,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Get date for image tag
-        id: date
-        run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
+      - name: Install just
+        uses: extractions/setup-just@v2
 
       - name: Update build counter
         run: |
@@ -44,46 +43,31 @@ jobs:
           BUILD_COUNT: ${{ vars.BUILD_COUNT }}
           LAST_RUN_DATE: ${{ vars.LAST_RUN_DATE }}
 
-      - name: Build image
-        id: build_image
-        uses: redhat-actions/buildah-build@v2
-        with:
-          containerfiles: |
-            ./Containerfile
-          image: gneiss
-          tags: ${{ matrix.MAJOR_VERSION }} ${{ matrix.MAJOR_VERSION }}.${{ env.DATE }}.${{ env.BUILD_COUNT }}
-          build-args: |
-            FEDORA_MAJOR_VERSION=${{ matrix.MAJOR_VERSION }}
-          labels: |
-            org.opencontainers.image.title=gneiss
-            org.opencontainers.image.version=${{ matrix.MAJOR_VERSION }}.${{ env.DATE }}.${{ env.BUILD_COUNT }}
-
-      - name: Enable Sigstore attachments
-        run: |
-          sudo mkdir -p /etc/containers/registries.d
-          echo 'default-docker:
-            use-sigstore-attachments: true' | sudo tee /etc/containers/registries.d/sigstore.yaml
-
       - name: Copy signing key and password
         run: |
           echo "${{ secrets.SIGNING_KEY }}" > cosign.key
           echo "${{ secrets.SIGNING_KEY_PASSWORD }}" > cosign.pwd
 
+      - name: Build image
+        run: |
+          for attempt in 1 2 3; do
+            just build ${{ matrix.MAJOR_VERSION }} && break
+            if [ $attempt -eq 3 ]; then exit 1; fi
+            echo "Attempt $attempt failed, retrying in 30s..."
+            sleep 30
+          done
+
       - name: Push image to registry
-        uses: redhat-actions/push-to-registry@v2
-        id: push
+        run: |
+          for attempt in 1 2 3; do
+            just push ${{ matrix.MAJOR_VERSION }} && break
+            if [ $attempt -eq 3 ]; then exit 1; fi
+            echo "Attempt $attempt failed, retrying in 30s..."
+            sleep 30
+          done
         env:
           REGISTRY_USER: ${{ github.actor }}
           REGISTRY_PASSWORD: ${{ github.token }}
-        with:
-          image: ${{ steps.build_image.outputs.image }}
-          tags: ${{ steps.build_image.outputs.tags }}
-          registry: ${{ env.IMAGE_REGISTRY }}
-          username: ${{ env.REGISTRY_USER }}
-          password: ${{ env.REGISTRY_PASSWORD }}
-          extra-args: |
-            --sign-by-sigstore-private-key=cosign.key
-            --sign-passphrase-file=cosign.pwd
 
       - name: Clean up secrets
         if: always()
