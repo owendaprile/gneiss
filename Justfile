@@ -12,6 +12,7 @@ build MAJOR_VERSION=DEFAULT_MAJOR_VERSION:
     podman build \
         --pull=always \
         --format docker \
+        --platform linux/amd64 \
         --build-arg FEDORA_MAJOR_VERSION={{ MAJOR_VERSION }} \
         --label "org.opencontainers.image.title={{ IMAGE_NAME }}" \
         --label "org.opencontainers.image.version={{ MAJOR_VERSION }}.{{ DATE }}.{{ BUILD_COUNT }}" \
